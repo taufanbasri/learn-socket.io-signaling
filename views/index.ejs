@@ -16,9 +16,9 @@
         <video id="videoTag" autoplay></video>
         <div>
             <label>Your Name</label>
-            <input type="text" name="myName">
+            <input type="text" id="myName">
             <label>Message</label>
-            <input type="text" name="myMessage">
+            <input type="text" id="myMessage">
             <button type="submit" id="sendMessage">Submit</button>
             <div id="chatArea">
                 Message output: <br>
@@ -38,13 +38,27 @@
 
             videoSelect.onchange = startStream;
 
-            startStream();
+            // startStream();
 
             io = io.connect();
             io.emit('ready', ROOM);
             io.on('announce', function (data) {
                 displayMessage(data.message);
             });
+
+            io.on('message', function (data) {
+                displayMessage(data.author + ': ' + data.message);
+            });
+
+            sendMessage.addEventListener('click', function (ev) {
+                io.emit('send', {
+                    "author": myName.value,
+                    "message": myMessage.value,
+                    "room": ROOM
+                });
+
+                ev.preventDefault();
+            }, false);
 
             function displayMessage(message) {
                 chatArea.innerHTML = chatArea.innerHTML + '<br>' + message;
