@@ -7,13 +7,9 @@
         <script src="/socket.io/socket.io.js"></script>
     </head>
     <body>
-        <div>
-            Video: <select id="camera"></select>
-        </div>
-        <p>
-            <button type="button" id="takeProfilePicture" type="button" autofocus>Create Profile Picture</button>
-        </p>
-        <video id="videoTag" autoplay></video>
+        <video id="myVideoTag" autoplay></video>
+        <video id="theirVideoTag" autoplay></video>
+
         <div>
             <label>Your Name</label>
             <input type="text" id="myName">
@@ -26,19 +22,13 @@
         </div>
 
         <script>
-            var videoArea = document.querySelector('video');
-            var videoSelect = document.querySelector('#camera');
+            var myVideoArea = document.querySelector('#myVideoTagideo');
+            var theirVideoArea = document.querySelector('#theirVideoTagideo');
             var myName = document.querySelector('#myName');
             var myMessage = document.querySelector('#myMessage');
             var sendMessage = document.querySelector('#sendMessage');
             var chatArea = document.querySelector('#chatArea');
             var ROOM = 'chat';
-
-            navigator.mediaDevices.enumerateDevices(getCameras); // not work yet
-
-            videoSelect.onchange = startStream;
-
-            // startStream();
 
             io = io.connect();
             io.emit('ready', ROOM);
@@ -62,42 +52,6 @@
 
             function displayMessage(message) {
                 chatArea.innerHTML = chatArea.innerHTML + '<br>' + message;
-            }
-
-            function getCameras(sourceInfos) {
-                for (var i = 0; i !== sourceInfos.length; i++) {
-                    var sourceInfo = sourceInfos[i];
-                    var option = document.createElement('option');
-                    option.value = sourceInfo.id;
-
-                    if (sourceInfo.kind === 'video') {
-                        option.text = sourceInfo.label || 'camera ' + (videoSelect.length + 1);
-                        videoSelect.appendChild(option);
-                    }
-                }
-            }
-
-            function startStream() {
-                navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-
-                var videoSource = videoSelect.value;
-
-                var constraints = {
-                    audio: false,
-                    video: false
-                };
-
-                navigator.getUserMedia(constraints, onSuccess, onError);
-            }
-
-            function onSuccess(stream) {
-                console.log('Success! We have a stream!');
-                videoArea.srcObject = stream;
-                videoArea.play();
-            }
-
-            function onError(error) {
-                console.log('Error with getUserMedia: ', error);
             }
         </script>
     </body>

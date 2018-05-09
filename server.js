@@ -26,4 +26,12 @@ app.io.route('send', function (req) {
     })
 })
 
+app.io.route('signal', function (req) {
+    // Note: the use of req here for broadcasting so only the sender doesn't receive thei own messages
+    req.io.room(req.data.room).broadcast('signaling_message', {
+        type: req.data.type,
+        message: req.data.message
+    })
+})
+
 app.listen(PORT);
