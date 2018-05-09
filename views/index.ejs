@@ -19,6 +19,9 @@
             <div id="chatArea">
                 Message output: <br>
             </div>
+            <div id="signalingArea">
+                Signaling Messages: <br>
+            </div>
         </div>
 
         <script>
@@ -28,10 +31,28 @@
             var myMessage = document.querySelector('#myMessage');
             var sendMessage = document.querySelector('#sendMessage');
             var chatArea = document.querySelector('#chatArea');
+            var signalingArea = document.querySelector('#signalingArea');
             var ROOM = 'chat';
+            var SIGNAL_ROOM = 'signal_room';
 
             io = io.connect();
-            io.emit('ready', ROOM);
+            io.emit('ready', {
+                'chat_room': ROOM,
+                'signal_room': SIGNAL_ROOM
+            });
+
+            // Send a first signaling message to anyone listening
+            // This normally would be on a button click
+            io.emit('signal', {
+                "type": "user_here",
+                "message": "Are you ready for a call?",
+                "room": SIGNAL_ROOM
+            });
+
+            io.on('signaling_message', function (data) {
+                displaySignalMessage("Signal received: " + data.type);
+            });
+
             io.on('announce', function (data) {
                 displayMessage(data.message);
             });
@@ -52,6 +73,10 @@
 
             function displayMessage(message) {
                 chatArea.innerHTML = chatArea.innerHTML + '<br>' + message;
+            }
+
+            function displaySignalMessage(message) {
+                signalingArea.innerHTML = signalingArea.innerHTML + '<br>' + message;
             }
         </script>
     </body>

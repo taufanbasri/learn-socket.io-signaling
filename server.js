@@ -13,7 +13,8 @@ app.get('/', function (req, res) {
 });
 
 app.io.route('ready', function (req) {
-    req.io.join(req.data);
+    req.io.join(req.data.chat_room);
+    req.io.join(req.data.signal_room);
     app.io.room(req.data).broadcast('announce', {
         message: 'New client in the ' + req.data + 'room.'
     })
