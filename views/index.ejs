@@ -4,6 +4,7 @@
         <meta charset="utf-8">
         <title>Taufan Introduction to WebRTC</title>
         <link rel="stylesheet" href="style.css">
+        <script src="/socket.io/socket.io.js"></script>
     </head>
     <body>
         <div>
@@ -13,16 +14,41 @@
             <button type="button" id="takeProfilePicture" type="button" autofocus>Create Profile Picture</button>
         </p>
         <video id="videoTag" autoplay></video>
+        <div>
+            <label>Your Name</label>
+            <input type="text" name="myName">
+            <label>Message</label>
+            <input type="text" name="myMessage">
+            <button type="submit" id="sendMessage">Submit</button>
+            <div id="chatArea">
+                Message output: <br>
+            </div>
+        </div>
 
         <script>
             var videoArea = document.querySelector('video');
             var videoSelect = document.querySelector('#camera');
+            var myName = document.querySelector('#myName');
+            var myMessage = document.querySelector('#myMessage');
+            var sendMessage = document.querySelector('#sendMessage');
+            var chatArea = document.querySelector('#chatArea');
+            var ROOM = 'chat';
 
             navigator.mediaDevices.enumerateDevices(getCameras); // not work yet
 
             videoSelect.onchange = startStream;
 
             startStream();
+
+            io = io.connect();
+            io.emit('ready', ROOM);
+            io.on('announce', function (data) {
+                displayMessage(data.message);
+            });
+
+            function displayMessage(message) {
+                chatArea.innerHTML = chatArea.innerHTML + '<br>' + message;
+            }
 
             function getCameras(sourceInfos) {
                 for (var i = 0; i !== sourceInfos.length; i++) {
@@ -46,7 +72,7 @@
                     audio: false,
                     video: false
                 };
-                
+
                 navigator.getUserMedia(constraints, onSuccess, onError);
             }
 
